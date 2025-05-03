@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Future Development Group - Financial Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+  <style>
+    :root {
+      --primary: #26547c;
+      --secondary: #06d6a0;
+      --accent: #ffd166;
+      --bg: #f7fafc;
+      --white: #fff;
+      --danger: #ef476f;
+      --info: #118ab2;
+      --muted: #7a869a;
+      --goal-bg: #e7f9f1;
+      --plan-bg: #fdf6e3;
+      --notice-bg: #fff9e6;
+      --notice-border: #ffd166;
+      --table-stripe: #f3f7fa;
+      --table-hover: #e0f7fa;
+      --neon-green: #39ff14;
+    }
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--primary);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-size: 1.02rem;
+      line-height: 1.7;
+    }
+    header {
+      background: var(--primary);
+      color: var(--white);
+      padding: 2rem 1rem 1rem 1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(38,84,124,0.07);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    header .slogan {
+      margin-top: 0.7rem;
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--accent);
+      font-weight: 500;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.2rem 0.5rem 2.5rem 0.5rem;
+    }
+    .section-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    section {
+      background: var(--white);
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(38,84,124,0.07);
+      padding: 1.7rem 1.5rem 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      flex: 1 1 350px;
+      min-width: 300px;
+      max-width: 540px;
+    }
+    .core-values, .future-plans {
+      background: var(--goal-bg);
+      border-left: 6px solid var(--secondary);
+      max-width: 500px;
+    }
+    .future-plans {
+      background: var(--plan-bg);
+      border-left: 6px solid var(--accent);
+    }
+    .section-title {
+      font-size: 1.22rem;
+      font-weight: 700;
+      margin-bottom: 0.7rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .section-list {
+      margin: 0;
+      padding-left: 1.2em;
+      color: var(--info);
+      font-size: 1.07rem;
+      line-height: 1.7;
+      font-weight: 500;
+    }
+    .last-updated {
+      text-align: center;
+      font-size: 0.97rem;
+      color: var(--info);
+      margin: 0.5rem 0 1.2rem 0;
+    }
+    .dashboard-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .summary-section, .charts-section {
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(38,84,124,0.07);
+      padding: 2rem 1.5rem;
+      min-width: 270px;
+      flex: 1 1 320px;
+      max-width: 340px;
+    }
+    .summary-section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1.2rem;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+    }
+    .summary-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    .summary-list li {
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #eef3f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .summary-label {
+      font-weight: 500;
+      color: var(--primary);
+    }
+    .org-start, .months-active {
+      color: var(--muted);
+      font-size: 1.01rem;
+      text-align: center;
+      margin: 0.2rem 0;
+    }
+    .months-active {
+      color: var(--secondary);
+      font-size: 1.07rem;
+      font-weight: 600;
+      margin-top: 1.2rem;
+    }
+    .total-expected-label {
+      font-weight: bold;
+      color: var(--danger);
+    }
+    .charts-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      align-items: center;
+    }
+    .charts-row {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+    .chart-container {
+      flex: 1 1 280px;
+      min-width: 220px;
+      width: 100%;
+      max-width: 340px;
+      background: #f3f7fa;
+      border-radius: 10px;
+      padding: 1rem 0.5rem;
+      box-sizing: border-box;
+      margin-bottom: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .chart-title {
+      text-align: center;
+      font-size: 1rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .yearly-growth-fullwidth {
+      max-width: 1100px;
+      margin: 2rem auto 2rem auto;
+      background: #f3f7fa;
+      border-radius: 10px;
+      padding: 1.5rem 2rem;
+      box-sizing: border-box;
+      box-shadow: 0 2px 10px rgba(38,84,124,0.07);
+    }
+    #growthLine { width: 100% !important; height: 400px !important; display: block; }
+    .loan-recipients-section {
+      background: #f6fafc;
+      border-radius: 8px;
+      margin-top: 0.7rem;
+      padding: 0.7rem 1rem;
+      font-size: 0.98rem;
+    }
+    .loan-recipients-section h4 {
+      margin: 0 0 0.5em 0;
+      color: var(--primary);
+      font-size: 1em;
+    }
+    .loan-recipients-list {
+      margin: 0;
+      padding-left: 1.2em;
+    }
+    .loan-recipients-list li {
+      margin-bottom: 0.2em;
+    }
+    .highlight {
+      background: #fff5e6;
+      border-left: 4px solid var(--accent);
+    }
+    .notice-section {
+      max-width: 1100px;
+      margin: 1.5rem auto 1.2rem auto;
+      background: var(--notice-bg);
+      border-left: 6px solid var(--notice-border);
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(255,209,102,0.09);
+      padding: 1.3rem 1.5rem 1.1rem 1.5rem;
+    }
+    .notice-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--danger);
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .notice-list {
+      margin: 0;
+      padding-left: 1.2em;
+      color: var(--primary);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      font-weight: 500;
+    }
+    .notice-list li {
+      margin-bottom: 0.4em;
+    }
+    .member-contributions {
+      width: 100%;
+      max-width: 900px;
+      margin: 2rem auto 1rem auto;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(38,84,124,0.07);
+      padding: 1.5rem;
+    }
+    .member-contributions .chart-title { margin-bottom: 1rem; }
+    .member-pie-flex {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .member-pie-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 180px;
+      flex: 1 1 220px;
+    }
+    .member-pie-caption {
+      margin-top: 0.4rem;
+      font-size: 1.01rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-align: center;
+    }
+    .member-pie-legend {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      min-width: 120px;
+      margin-top: 1rem;
+      font-size: 0.98rem;
+      gap: 0.6rem;
+    }
+    .member-pie-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .member-pie-legend-color {
+      width: 1.1em;
+      height: 1.1em;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5em;
+      border: 1.5px solid #eee;
+    }
+    .members-table-section {
+      max-width: 900px;
+      margin: 2rem auto 1rem auto;
+      background: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(38,84,124,0.07);
+      padding: 1.5rem;
+      overflow-x: auto;
+    }
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .reminder-row {
+      background: #fffbe8;
+      color: #1bbf3a;
+      font-weight: 600;
+      font-size: 1.08rem;
+      text-align: center;
+      letter-spacing: 0.01em;
+      border-bottom: 2px solid #ffd166;
+    }
+    .members-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1rem;
+    }
+    .members-table th, .members-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #e5eaf1;
+      text-align: left;
+    }
+    .members-table th {
+      background: #f3f7fa;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .members-table tbody tr:nth-child(even) { background: var(--table-stripe); }
+    .members-table tbody tr:hover { background: var(--table-hover); }
+    .overdue { background: #ffeaea; color: var(--danger); font-weight: bold; border-radius: 5px; padding: 0.2em 0.6em; display: inline-block; }
+    .table-total-row {
+      background: linear-gradient(90deg, #ffd700 0%, #ff6f00 100%);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1.08rem;
+      text-align: right;
+      letter-spacing: 0.01em;
+      text-shadow: 0 2px 10px #26547c, 0 0 8px #26547c;
+      animation: pulse-total-row 1.5s infinite alternate;
+    }
+    @keyframes pulse-total-row {
+      0% { text-shadow: 0 2px 10px #26547c, 0 0 8px #26547c;}
+      100% { text-shadow: 0 2px 18px #26547c, 0 0 16px #26547c;}
+    }
+    .table-total-row td {
+      border-top: 3px solid #ff9800;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      font-size: 1.13rem;
+    }
+    .whatsapp-link { display: flex; align-items: center; justify-content: center; margin: 1.5rem auto 0.5rem auto; font-size: 1.07rem; color: #25d366; text-decoration: none; font-weight: 500; gap: 0.5em; width: fit-content; }
+    .whatsapp-link img { width: 1.3em; height: 1.3em; vertical-align: middle; }
+    .export-btn { background: var(--primary); color: var(--white); border: none; border-radius: 5px; padding: 0.4em 1.1em; font-size: 0.98em; cursor: pointer; transition: background 0.2s; }
+    .export-btn:hover { background: var(--secondary); color: var(--primary);}
+    .footer-note { display: none; }
+    .neon-billboard {
+      background: #181c25;
+      border-radius: 2.5rem;
+      border: 3px solid #39ff14;
+      box-shadow: 0 0 1.5rem #39ff14, 0 0 2.5rem #39ff14, 0 0 5rem #39ff14;
+      margin: 2rem auto 2.5rem auto;
+      padding: 1.5rem 2.5rem 1.1rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
+    }
+    .neon-amount {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 7px #fff, 0 0 15px #39ff14, 0 0 25px #39ff14, 0 0 35px #39ff14, 0 0 45px #39ff14;
+      animation: neon-flicker 1.5s infinite alternate;
+    }
+    .neon-caption {
+      margin-top: 0.6rem;
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: #39ff14;
+      text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14;
+      font-weight: 600;
+    }
+    @keyframes neon-flicker {
+      0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 7px #fff, 0 0 15px #39ff14, 0 0 25px #39ff14, 0 0 35px #39ff14, 0 0 45px #39ff14;
+      }
+      20%, 24%, 55% {
+        opacity: 0.7;
+        text-shadow: none;
+      }
+    }
+    @media (max-width: 900px) {
+      .main-content, .goals-future-section, .section-group, .dashboard-flex { flex-direction: column; gap: 1.5rem; align-items: stretch; }
+      .summary-section, .charts-section, .goals-box, .future-box, section { max-width: 100%; }
+      .member-contributions, .members-table-section, .notice-section { padding: 0.8rem; }
+      .charts-row { flex-direction: column; }
+      .yearly-growth-fullwidth { padding: 1rem 0.5rem; }
+      .member-pie-flex { flex-direction: column; gap: 1.1rem; align-items: stretch; }
+      .member-pie-legend { flex-direction: row; flex-wrap: wrap; margin: 0.8rem 0 0.8rem 0; justify-content: center; min-width: 0; gap: 1.2rem; }
+    }
+    @media (max-width: 600px) {
+      .summary-section, .charts-section, .member-contributions, .members-table-section, .goals-future-section, .notice-section, section { padding: 0.5rem; }
+      header h1 { font-size: 1.2rem; }
+      .yearly-growth-fullwidth { padding: 0.5rem 0.2rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Future Development Group - Financial Dashboard</h1>
+    <div class="slogan">Empowering Progress Through Collective Investment</div>
+  </header>
+  <main>
+    <div class="section-group">
+      <section class="core-values">
+        <div class="section-title">🔑 Our Core Values</div>
+        <ul class="section-list">
+          <li>🤝 We believe in shared participation and inclusive decision-making</li>
+          <li>🧭 We uphold truthfulness, honesty, and transparency in all financial dealings</li>
+          <li>💪 Our strength lies in collective hard work and ethical growth</li>
+          <li>📈 We strive to create a community that grows together, succeeds together</li>
+        </ul>
+      </section>
+      <section class="future-plans">
+        <div class="section-title">🚀 Future Investment Plans</div>
+        <ul class="section-list">
+          <li>🏞️ <strong>Land Acquisition:</strong> Long-term investments in land and property for stable growth</li>
+          <li>🛒 <strong>Small & Medium Businesses:</strong> Supporting member-led ventures to generate group income</li>
+          <li>👩‍💻 <strong>Personal Development Funds:</strong> Financing training, education, or tools for members' career growth</li>
+          <li>💼 <strong>Emergency & Welfare Fund:</strong> Ensuring financial security for members during unforeseen situations</li>
+          <li>🌍 <strong>Green Projects:</strong> Exploring eco-friendly initiatives that generate profit and benefit the environment</li>
+        </ul>
+      </section>
+    </div>
+    <div class="last-updated" id="last-updated"></div>
+    <!-- Neon Billboard for Total Deposited -->
+    <div class="neon-billboard" id="neon-billboard">
+      <span class="neon-amount" id="neon-total-deposited">৳0</span>
+      <div class="neon-caption">TOTAL DEPOSITED</div>
+    </div>
+    <!-- Executive Committee Notices (full-width) -->
+    <section class="notice-section" id="notice-section" style="display:none;">
+      <div class="notice-title">📢 Executive Committee Notices</div>
+      <ul class="notice-list" id="notice-list"></ul>
+    </section>
+    <div class="dashboard-flex">
+      <section class="summary-section">
+        <h2>Account Summary</h2>
+        <ul class="summary-list" id="summary-list"></ul>
+        <div class="org-start" id="org-start"></div>
+        <div class="months-active" id="months-active"></div>
+      </section>
+      <section class="charts-section">
+        <div class="charts-row">
+          <div class="chart-container">
+            <div class="chart-title">Investment Breakdown</div>
+            <canvas id="investmentPie"></canvas>
+            <div class="loan-recipients-section" id="loan-recipients-section">
+              <h4>Loan Recipients</h4>
+              <ul class="loan-recipients-list" id="loan-recipients-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <!-- Full-width Yearly Growth Chart -->
+    <div class="yearly-growth-fullwidth">
+      <div class="chart-title" style="font-size:1.2rem; font-weight:700; color:var(--primary);text-align:center;">Yearly Fund Growth</div>
+      <canvas id="growthLine" height="400"></canvas>
+    </div>
+    <section class="member-contributions">
+      <div class="chart-title">Member Contributions</div>
+      <div class="member-pie-flex">
+        <div class="member-pie-panel">
+          <canvas id="memberPie"></canvas>
+          <div class="member-pie-caption">Deposited</div>
+        </div>
+        <div class="member-pie-legend" id="member-pie-legend"></div>
+        <div class="member-pie-panel">
+          <canvas id="memberDuePie"></canvas>
+          <div class="member-pie-caption">Due Amount</div>
+        </div>
+      </div>
+    </section>
+    <section class="members-table-section">
+      <div class="table-controls">
+        <span style="font-weight: 600; color: var(--primary);">Members</span>
+        <button class="export-btn" onclick="exportTableToWord('members.doc')">Export to Word</button>
+      </div>
+      <table class="members-table" id="members-table">
+        <thead>
+          <tr class="reminder-row">
+            <td colspan="6">
+              The deadline of depositing monthly share is 10th of this month. Please confirm your portion. 😊
+            </td>
+          </tr>
+          <tr>
+            <th>Member Name</th>
+            <th>Contact Number</th>
+            <th>Total Deposited Amount</th>
+            <th>One time Payment</th>
+            <th>Due Amount to be UTD</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+    <a class="whatsapp-link" href="https://chat.whatsapp.com/EXAMPLEGROUPLINK" target="_blank" title="Join WhatsApp Group">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+      Join our WhatsApp Group
+    </a>
+  </main>
+  <footer>
+    <div class="footer-note"></div>
+  </footer>
+  <script type="application/json" id="dashboard-data">
+  {
+    "investments": {
+      "business": 12000,
+      "loan": 3500,
+      "cash": 1200,
+      "bankDeposited": 1000
+    },
+    "loanRecipients": [
+      { "name": "Bright Future Ltd.", "amount": 2000, "date": "2024-03-15", "notes": "Business expansion" },
+      { "name": "Chinedu Obi", "amount": 1000, "date": "2024-05-01", "notes": "Personal loan" },
+      { "name": "Hope Foundation", "amount": 500, "date": "2024-04-10", "notes": "Community project" }
+    ],
+    "growth": {
+      "months": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"],
+      "amounts": [8000, 9000, 11000, 12000, 13000, 14500, 15500, 17000, 17700]
+    },
+    "lastYearEnd": 7500,
+    "members": [
+      { "name": "Md Ashaduzzaman", "contact": "555-2001", "deposited": 12000, "onetime": 15000, "due": 10500, "overdue": false },
+      { "name": "Kawser Ahmed", "contact": "555-2002", "deposited": 13500, "onetime": 11000, "due": 18000, "overdue": true },
+      { "name": "Ahsanul Haque Tanvir", "contact": "555-2003", "deposited": 17000, "onetime": 17000, "due": 12000, "overdue": false },
+      { "name": "Humayun Kobir", "contact": "555-2004", "deposited": 20000, "onetime": 19500, "due": 0, "overdue": false },
+      { "name": "Sarkar Enayet Kobir", "contact": "555-2005", "deposited": 18000, "onetime": 12000, "due": 17000, "overdue": true },
+      { "name": "Md Johirul Islam", "contact": "555-2006", "deposited": 14500, "onetime": 16000, "due": 13000, "overdue": false },
+      { "name": "Assaduzzaman Shemol", "contact": "555-2007", "deposited": 15500, "onetime": 18000, "due": 0, "overdue": true },
+      { "name": "Mohammod Ullah", "contact": "555-2008", "deposited": 11000, "onetime": 10500, "due": 10000, "overdue": false },
+      { "name": "Rasel", "contact": "555-2009", "deposited": 19000, "onetime": 19500, "due": 20000, "overdue": true }
+    ],
+    "summary": {
+      "president": "Samuel Okoro",
+      "secretary": "Fatima Bello",
+      "financeSecretary": "Ngozi Eze"
+    },
+    "startDate": "2022-02-01",
+    "lastUpdated": "2025-05-02 5:08 PM CDT",
+    "notices": [
+      "Annual general meeting scheduled for 15th June.",
+      "Please update your contact information with the secretary.",
+      "Next investment proposal submissions due by 10th June.",
+      "Reminder: All dues must be cleared before the end of the month."
+    ]
+  }
+  </script>
+  <script>
+    const data = JSON.parse(document.getElementById("dashboard-data").textContent);
+
+    function getMonthYear(dateString) {
+      const d = new Date(dateString);
+      const month = d.toLocaleString('default', { month: 'long' });
+      return `${month} ${d.getFullYear()}`;
+    }
+    document.getElementById("org-start").textContent =
+      "Organization started: " + getMonthYear(data.startDate);
+
+    function monthsBetween(date1, date2) {
+      const d1 = new Date(date1);
+      const d2 = new Date(date2);
+      return (
+        (d2.getFullYear() - d1.getFullYear()) * 12 +
+        (d2.getMonth() - d1.getMonth()) +
+        (d2.getDate() >= d1.getDate() ? 0 : -1)
+      );
+    }
+    const now = new Date();
+    const monthsActive = monthsBetween(data.startDate, now) + 1;
+    document.getElementById("months-active").textContent =
+      "Organization active for " + monthsActive + " month" + (monthsActive > 1 ? "s" : "");
+
+    document.getElementById("last-updated").textContent =
+      "Last updated: " + data.lastUpdated;
+
+    let totalDeposited = 0, totalDue = 0, totalOneTime = 0;
+
+    document.getElementById(
+      "summary-list"
+    ).innerHTML = `
+      <li><span class="summary-label">Total Deposited:</span> <span>৳${data.members.reduce((sum, m) => sum + m.deposited, 0).toLocaleString()}</span></li>
+      <li><span class="summary-label">Total Due:</span> <span>৳${data.members.reduce((sum, m) => sum + (m.due || 0), 0).toLocaleString()}</span></li>
+      <li><span class="summary-label total-expected-label">Total Expected if All Dues Paid:</span> <span style="font-weight:bold; color:var(--danger);">৳${(data.members.reduce((sum, m) => sum + m.deposited, 0) + data.members.reduce((sum, m) => sum + (m.due || 0), 0)).toLocaleString()}</span></li>
+      <li><span class="summary-label">Number of Members:</span> <span>${data.members.length}</span></li>
+      <li><span class="summary-label">Elected President:</span> <span>${data.summary.president}</span></li>
+      <li><span class="summary-label">Elected Secretary:</span> <span>${data.summary.secretary}</span></li>
+      <li><span class="summary-label">Elected Finance Secretary:</span> <span>${data.summary.financeSecretary}</span></li>`;
+
+    // Populate members table with vibrant total row
+    const tbody = document.querySelector("#members-table tbody");
+    tbody.innerHTML = data.members.map(m => {
+      totalDeposited += m.deposited || 0;
+      totalDue += m.due || 0;
+      totalOneTime += m.onetime || 0;
+      return `<tr>
+        <td>${m.name}</td>
+        <td>${m.contact || ""}</td>
+        <td>৳${m.deposited ? m.deposited.toLocaleString() : "0"}</td>
+        <td>৳${(m.onetime || 0).toLocaleString()}</td>
+        <td>${
+          m.due > 0
+            ? `<span class="${m.overdue ? "overdue" : ""}">৳${m.due.toLocaleString()}</span>`
+            : "৳0"
+        }</td>
+        <td style="text-align:center"><span>${m.due > 0 ? "😭" : "❤️"}</span></td>
+      </tr>`;
+    }).join("");
+    tbody.innerHTML += `
+      <tr class="table-total-row">
+        <td colspan="2" style="text-align:right;">TOTAL</td>
+        <td>৳${totalDeposited.toLocaleString()}</td>
+        <td>৳${totalOneTime.toLocaleString()}</td>
+        <td>৳${totalDue.toLocaleString()}</td>
+        <td></td>
+      </tr>
+    `;
+
+    // Executive Committee Notices
+    const notices = Array.isArray(data.notices) ? data.notices.slice(0, 4) : [];
+    if (notices.length > 0) {
+      document.getElementById("notice-section").style.display = "";
+      document.getElementById("notice-list").innerHTML = notices.map(n => `<li>${n}</li>`).join('');
+    }
+
+    function renderLoanRecipients(highlight) {
+      const ul = document.getElementById("loan-recipients-list");
+      ul.innerHTML = data.loanRecipients
+        .map(
+          (rec) => `<li${highlight ? ' class="highlight"' : ""}>
+          <strong>${rec.name}</strong> - ৳${rec.amount.toLocaleString()}
+          <span style="color:#888;font-size:0.95em;">(${rec.date})</span>
+          <span style="color:#26547c;font-size:0.93em;">${
+            rec.notes ? " - " + rec.notes : ""
+          }</span>
+        </li>`
+        )
+        .join("");
+      document.getElementById("loan-recipients-section").className = highlight
+        ? "loan-recipients-section highlight"
+        : "loan-recipients-section";
+    }
+    renderLoanRecipients(false);
+
+    // Investment Breakdown Pie Chart
+    new Chart(
+      document.getElementById("investmentPie"),
+      {
+        type: "pie",
+        data: {
+          labels: ["Business", "Loan", "Cash", "Bank Deposited"],
+          datasets: [
+            {
+              data: [
+                data.investments.business,
+                data.investments.loan,
+                data.investments.cash,
+                data.investments.bankDeposited
+              ],
+              backgroundColor: ["#26547c", "#06d6a0", "#ffd166", "#118ab2"],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: { position: "bottom" },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.label + ": ৳" + context.parsed.toLocaleString();
+                }
+              }
+            }
+          },
+          onClick: function (evt, elements) {
+            if (elements.length) {
+              const idx = elements[0].index;
+              renderLoanRecipients(idx === 1);
+            }
+          },
+          onHover: function (evt, elements) {
+            if (elements.length) {
+              const idx = elements[0].index;
+              renderLoanRecipients(idx === 1);
+            } else {
+              renderLoanRecipients(false);
+            }
+          },
+        },
+      }
+    );
+
+    // Member Contributions Pie Chart (Deposited)
+    const memberPieColors = [
+      "#26547c",
+      "#06d6a0",
+      "#ffd166",
+      "#fdf6e3",
+      "#118ab2",
+      "#ef476f",
+      "#7a869a",
+      "#e7f9f1",
+      "#f6f9fc"
+    ];
+    new Chart(document.getElementById("memberPie"), {
+      type: "pie",
+      data: {
+        labels: data.members.map((m) => m.name),
+        datasets: [
+          {
+            data: data.members.map((m) => m.deposited),
+            backgroundColor: memberPieColors,
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ": ৳" + context.parsed.toLocaleString();
+              }
+            }
+          }
+        },
+      },
+    });
+
+    // Member Due Amount Pie Chart (Due)
+    new Chart(document.getElementById("memberDuePie"), {
+      type: "pie",
+      data: {
+        labels: data.members.map((m) => m.name),
+        datasets: [
+          {
+            data: data.members.map((m) => m.due || 0),
+            backgroundColor: memberPieColors,
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ": ৳" + context.parsed.toLocaleString();
+              }
+            }
+          }
+        },
+      },
+    });
+
+    // Custom Legend for Member Pie Charts
+    const legendDiv = document.getElementById("member-pie-legend");
+    legendDiv.innerHTML = data.members.map((m, i) =>
+      `<div class="member-pie-legend-item">
+        <span class="member-pie-legend-color" style="background:${memberPieColors[i % memberPieColors.length]}"></span>
+        <span>${m.name}</span>
+      </div>`
+    ).join("");
+
+    new Chart(document.getElementById("growthLine"), {
+      type: "line",
+      data: {
+        labels: data.growth.months,
+        datasets: [
+          {
+            label: "Total Funds",
+            data: data.growth.amounts,
+            fill: true,
+            borderColor: "#26547c",
+            backgroundColor: "rgba(38,84,124,0.09)",
+            pointBackgroundColor: "#ffd166",
+            tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          annotation: {
+            annotations: {
+              lastYearLine: {
+                type: "line",
+                yMin: data.lastYearEnd,
+                yMax: data.lastYearEnd,
+                borderColor: "#ef476f",
+                borderWidth: 2,
+                borderDash: [6, 6],
+                label: {
+                  enabled: true,
+                  content:
+                    "Last Year's End: ৳" + data.lastYearEnd.toLocaleString(),
+                  position: "end",
+                  backgroundColor: "#ef476f",
+                  color: "#fff",
+                  font: { size: 11, weight: "bold" },
+                },
+              },
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return "৳" + context.parsed.y.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            ticks: {
+              callback: (value) => "৳" + value.toLocaleString(),
+            },
+          },
+        },
+      },
+    });
+
+    // Neon billboard
+    document.getElementById("neon-total-deposited").textContent = "৳" + totalDeposited.toLocaleString();
+
+    function exportTableToWord(filename = "members.doc") {
+      const table = document.getElementById("members-table");
+      const html = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office'
+              xmlns:w='urn:schemas-microsoft-com:office:word'
+              xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset="utf-8"><title>Export Table</title></head><body>
+        <h2>Members Table</h2>
+        ${table.outerHTML}
+        </body></html>
+      `;
+      const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    window.exportTableToWord = exportTableToWord;
+  </script>
+</body>
+</html>
